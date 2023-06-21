@@ -21,6 +21,7 @@ setup(
     entry_points={
         'console_scripts': [
             'lightsensors = rpi_ros2_practice.lightsensors:main',
+            'motors = rpi_ros2_practice.motors:main',
         ],
     },
 )
