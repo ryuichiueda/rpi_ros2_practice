@@ -12,14 +12,18 @@ class Motors():
 
 
     def callback_motor_raw(self, msg):
+        #self.node.get_logger().info("send {}".format(msg))
         lfile = '/dev/rtmotor_raw_l0'
         rfile = '/dev/rtmotor_raw_r0'
         
         try:
             lf = open(lfile,'w')
             rf = open(rfile,'w')
+            #self.node.get_logger().info("send {}".format(msg.data[0]))
             lf.write("%s\n" % msg.data[0])
             rf.write("%s\n" % msg.data[1])
+            lf.flush()
+            rf.flush()
         except:
             self.node.get_logger().info("cannot write to rtmotor_raw_*")
     
@@ -32,7 +36,3 @@ def main():
     node = Node("motors")
     talker = Motors(node)
     rclpy.spin(node)
-
-
-if __name__ == '__main__':
-    main()
