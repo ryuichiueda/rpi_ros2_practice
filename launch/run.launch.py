@@ -14,5 +14,10 @@ def generate_launch_description():
         executable='motors',
         output='screen',
         )
+    agent = launch_ros.actions.Node(
+        package='rpi_ros2_practice',
+        executable='agent',
+        output='screen',
+        )
 
-    return launch.LaunchDescription([lightsensors, motors])
+    return launch.LaunchDescription([lightsensors, motors, agent])
