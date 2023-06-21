@@ -4,11 +4,10 @@ import rclpy, math
 from rclpy.node import Node
 from std_msgs.msg import Int16MultiArray
 
-class Motors():
-    def __init__(self, node_ref):
-        self.node = node_ref
-
-        self.sub_freqs = self.node.create_subscription(Int16MultiArray, 'motor_raw', self.callback_motor_raw, 10)
+class Motors(Node):
+    def __init__(self):
+        super().__init__("motors")
+        self.sub_freqs = self.create_subscription(Int16MultiArray, 'motor_raw', self.callback_motor_raw, 10)
 
 
     def callback_motor_raw(self, msg):
@@ -25,7 +24,7 @@ class Motors():
             lf.flush()
             rf.flush()
         except:
-            self.node.get_logger().info("cannot write to rtmotor_raw_*")
+            self.get_logger().info("cannot write to rtmotor_raw_*")
     
         lf.close()
         rf.close()
@@ -33,6 +32,5 @@ class Motors():
 
 def main():
     rclpy.init()
-    node = Node("motors")
-    talker = Motors(node)
-    rclpy.spin(node)
+    motors = Motors()
+    rclpy.spin(motors)
