@@ -4,19 +4,19 @@ import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Int16MultiArray
 
-class LightSensors():
-    def __init__(self, node_ref):
-        self.node = node_ref
-        self.node.declare_parameter("freq", 10)
-        self.pub = self.node.create_publisher(Int16MultiArray, "lightsensors", 10)
-        self.freq = self.node.get_parameter("freq").value
-        self.timer = self.node.create_timer(1/self.freq, self.cb)
+class LightSensors(Node):
+    def __init__(self):
+        super().__init__("lightsensors")
+        self.declare_parameter("freq", 10)
+        self.pub = self.create_publisher(Int16MultiArray, "lightsensors", 10)
+        self.freq = self.get_parameter("freq").value
+        self.timer = self.create_timer(1/self.freq, self.cb)
 
     def cb(self):
-        if self.freq != self.node.get_parameter("freq").value:
-            self.freq = self.node.get_parameter("freq").value
+        if self.freq != self.get_parameter("freq").value:
+            self.freq = self.get_parameter("freq").value
             self.timer.destroy()
-            self.timer = self.node.create_timer(1/self.freq, self.cb)
+            self.timer = self.create_timer(1/self.freq, self.cb)
 
         devfile = '/dev/rtlightsensor0'
         try:
@@ -26,14 +26,9 @@ class LightSensors():
                 msg.data = [ int(e) for e in data ] 
                 self.pub.publish(msg)
         except:
-            self.node.get_logger().info("cannot publish")
+            self.get_logger().info("cannot publish")
 
 def main():
     rclpy.init()
-    node = Node("lightsensors")
-    talker = LightSensors(node)
-    rclpy.spin(node)
-
-
-if __name__ == '__main__':
-    main()
+    lightsensors = LightSensors()
+    rclpy.spin(lightsensors)
