@@ -9,12 +9,36 @@ from rpi_ros2_practice_msgs.srv import SwitchMotors
 class Agent(Node):
     def __init__(self):
         super().__init__("agent")
+
+        self.motor_switch = self.create_client(SwitchMotors, '/switch_motors')
+        self.motor_onoff("on")
+
         self.ranges = [0, 0, 0, 0]
         self.motors = [0, 0]
 
         self.sub_lightsensors = self.create_subscription(Int16MultiArray, 'lightsensors', self.callback_lightsensors, 10)
         self.pub_motors = self.create_publisher(MotorFreqs, "motor_raw", 10)
         self.timer = self.create_timer(0.1, self.callback_motors)
+
+
+    def motor_onoff(self, onoff):
+        while not self.motor_switch.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info('待機中')
+
+        req = SwitchMotors.Request()
+        req.command = onoff
+        future = self.motor_switch.call_async(req)
+
+        while rclpy.ok():
+            rclpy.spin_once(self)
+            if future.done():     #終わっていたら
+                try:
+                    res = future.result() #結果を受取り
+                except:
+                    self.get_logger().info('呼び出し失敗')
+                else: #このelseは「exceptじゃなかったら」という意味のelse
+                    self.get_logger().info("res: {}".format(res.result))
+                break #whileを出る
 
 
     def callback_lightsensors(self, msg):
