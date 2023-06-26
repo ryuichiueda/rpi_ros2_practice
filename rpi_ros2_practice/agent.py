@@ -3,6 +3,8 @@
 import rclpy, math
 from rclpy.node import Node
 from std_msgs.msg import Int16MultiArray
+from rpi_ros2_practice_msgs.msg import MotorFreqs
+from rpi_ros2_practice_msgs.srv import SwitchMotors
 
 class Agent(Node):
     def __init__(self):
@@ -11,7 +13,7 @@ class Agent(Node):
         self.motors = [0, 0]
 
         self.sub_lightsensors = self.create_subscription(Int16MultiArray, 'lightsensors', self.callback_lightsensors, 10)
-        self.pub_motors = self.create_publisher(Int16MultiArray, "motor_raw", 10)
+        self.pub_motors = self.create_publisher(MotorFreqs, "motor_raw", 10)
         self.timer = self.create_timer(0.1, self.callback_motors)
 
 
@@ -38,9 +40,9 @@ class Agent(Node):
             if p_freq < 0:  p_freq -= diff_limit
             else:           p_freq += diff_limit
         
-        msg = Int16MultiArray()
+        msg = MotorFreqs()
         self.motors = [p_freq, p_freq]
-        msg.data = [int(p_freq), int(p_freq)]
+        (msg.left, msg.right) = (int(p_freq), int(p_freq))
         self.pub_motors.publish(msg)
 
 
